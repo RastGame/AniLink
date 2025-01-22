@@ -66,9 +66,18 @@ module.exports = {
     // Визначення execute з параметром client
     async execute(interaction) {
         if (interaction.options.getSubcommand() === 'log_channel') {
+            const guildData = await Guild.findOne({ _id: interaction.guild.id})
             const channel = interaction.options.getChannel('channel')
+            console.log(guildData)
             console.log(channel)
-            await interaction.reply(`Канал успішно вибрано: <#${channel.id}>`)
+            if(channel) {
+                await Guild.updateOne(
+                    { _id: interaction.guild.id},
+                    { $set: {logchannel: channel.id}}
+                )
+                await interaction.reply(`Канал успішно вибрано: <#${channel.id}>`)
+            }
+            
         }
         if (interaction.options.getSubcommand() === 'whitelist') {
             try{
@@ -92,14 +101,36 @@ module.exports = {
                 console.log(error)
             }
         }
+        if (interaction.options.getSubcommand() === 'language') {
+            try{
+                console.log('Команда викликається')
+                const lang = interaction.options.getString('set_language_option')
+                console.log(`Вибрана мова: `+lang)
+                let guildData = await Guild.findOne({ _id: interaction.guild.id} )
+                console.log(guildData)
+                if(!guildData) {
+                    console.log('Не знайдено гільдію, створюю запис')
+                    guildData = new Guild({ _id: interaction.guild.id})
+                    await guildData.save()
+                }
+                await Guild.updateOne(
+                    { _id: interaction.guild.id},
+                    { $set: {language: lang}}
+                )
+                await interaction.reply('Успішно змінено мову на ' + lang)
+            }catch(error) {
+                console.log(error)
+            }
+        }
         if (interaction.options.getSubcommand() === 'ban_users') {
             let guildData = await Guild.findOne({ _id: interaction.guild.id} )
             const choice= interaction.options.getString('ban_users_option')
             console.log(`Вибір `+choice)
+            console.log(guildData.logchannel)
             if(choice==='true') {
                 try{
                     console.log('Викликається!')
-                    await guildData.updateOne(
+                    await Guild.updateOne(
                         { _id: interaction.guild.id },
                         { $set: { blocking_enabled: true } }
                     );
@@ -109,14 +140,9 @@ module.exports = {
                 }
             }
             
-            //console.log(isEnabled)
-            //await interaction.reply(`Успішно вибрано: ${isEnabled ? 'увімкнено' : 'вимкнено'}`)
         }
-        if (interaction.options.getSubcommand() === 'language') {
-            const choice= interaction.options.getString('set_language_option')
-            console.log(choice)
-            await interaction.reply(`Призначено мову на сервері ${choice}`)
-        }
-    }
 
+    
+
+    }
 }

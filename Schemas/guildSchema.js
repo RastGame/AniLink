@@ -18,6 +18,9 @@ const guildSchema = new mongoose.Schema({
     blocking_enabled: {
         type: Boolean,
         default: false
+    },
+    language: {
+        type: String,
     }
     
 }, { collection: 'collguilds' });  // Вказуємо колекцію вручну

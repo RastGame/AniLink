@@ -21,8 +21,7 @@ const userSchema = new mongoose.Schema({
             required: true,
         },
         proofs: {
-            type: String,
-            required: true
+            type: String
         }
     }],
 }, { collection: 'collusers' });  // Вказуємо колекцію вручну
