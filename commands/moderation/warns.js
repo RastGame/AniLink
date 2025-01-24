@@ -40,26 +40,26 @@ module.exports = {
       console.log(`Запит в базу:id: ${userIdNumber}`);
       const userWarnings = await Warning.findOne({ _id: userIdNumber });
 
+      const noWarnsEmbed = new EmbedBuilder()
+        .setColor('#4CAF50') // Червоний колір для попереджень
+        .setTitle(`Попередження для ${userId}`)
+        .addFields({
+          name: 'Попередження:',
+          value: 'Попереджень немає в базі даних.'
+        })
+        .setTimestamp();
+
       // Перевірка, чи є попередження
       if (!userWarnings) {
-        return interaction.reply({
-          content: 'У вас немає попереджень.',
-          ephemeral: true,
-        });
+        return interaction.reply({ embeds: [noWarnsEmbed] });
       }
-
       // Якщо попередження є, створюємо Embed для відображення
       const embed = new EmbedBuilder()
         .setColor('#FF0000') // Червоний колір для попереджень
-        .setTitle(`Попередження для ${interaction.user.username}`)
-        .setDescription('Ось ваші попередження:')
+        .setTitle(`Попередження для ${userId}`)
         .addFields({
           name: 'Попередження:',
           value: userWarnings.reasons.map(r => `Автор: ${r.author_id}, Причина: ${r.reason}`).join('\n') || 'Немає попереджень',
-        })
-        .setFooter({
-          text: `Запит виконано: ${interaction.user.username}`,
-          iconURL: interaction.user.avatarURL(),
         })
         .setTimestamp();
         

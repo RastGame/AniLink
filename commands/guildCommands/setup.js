@@ -10,12 +10,11 @@ module.exports = {
             subcommand
             .setName('log_channel')
             .setDescription('Призначити канал логів на вашій гільдії')
-            .addChannelOption(option => 
+            .addStringOption(option => 
                 option
-                .setName('channel')
-                .setDescription('Виберіть канал зі списку')
+                .setName('webhook_url')
+                .setDescription('Вкажіть посилання webhook, куди будуть відправлятись логи вашого серверу')
                 .setRequired(true)
-                .addChannelTypes(ChannelType.GuildText)
             )
         )
         .addSubcommand(subcommand =>
@@ -67,15 +66,15 @@ module.exports = {
     async execute(interaction) {
         if (interaction.options.getSubcommand() === 'log_channel') {
             const guildData = await Guild.findOne({ _id: interaction.guild.id})
-            const channel = interaction.options.getChannel('channel')
+            const url = interaction.options.getString('webhook_url')
             console.log(guildData)
-            console.log(channel)
-            if(channel) {
+            console.log(url)
+            if(url) {
                 await Guild.updateOne(
                     { _id: interaction.guild.id},
-                    { $set: {logchannel: channel.id}}
+                    { $set: {logchannel: url}}
                 )
-                await interaction.reply(`Канал успішно вибрано: <#${channel.id}>`)
+                await interaction.reply(`Webhook для логів успішно призначено!`)
             }
             
         }

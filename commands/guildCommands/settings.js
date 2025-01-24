@@ -12,7 +12,7 @@ module.exports = {
     // Визначення execute з параметром client
     async execute(interaction) {
         try{
-            const guildData = await Guild.findOne({_id: interaction.guild.id})
+            let guildData = await Guild.findOne({_id: interaction.guild.id})
             // Перевіряємо, чи доступне uptime через переданий client
             if(interaction.guild.ownerId == interaction.member.id) {
                 let role_names
@@ -25,19 +25,21 @@ module.exports = {
                 let userblocking;
                 if(!guildData) {
                     console.log('Не знайдено налаштувань')
-                    
+                    guildData = new Guild({ _id: interaction.guild.id})
 
                 }
                 console.log(guildData)
                 const emoji_park = await get_emojis_for_message(support_server)
+                
                 if(guildData.userblocking==true) {
                     userblocking = 'Увімкнено'
-                }else if(guildData.userblocking==false) {
+                }
+                else if(guildData.userblocking==false || !guildData.userblocking) {
                     userblocking ='Вимкнено'
                 } 
                 if(!guildData.logchannel && guildData.logchannel == null){guildData.logchannel="Немає"}
-                if(!guildData.whitelist && guildData.whitelist == null){guildData.logchannel="Немає даних"}
-                
+                if(!guildData.whitelist && guildData.whitelist == null){guildData.whitelist="Немає даних"}
+                if(!guildData.userblocking && guildData.userblocking == null){guildData.userblocking="Вимкнено"}
                 // Створюємо ембед
                 const ExampleEmbed = new EmbedBuilder()
 
@@ -83,18 +85,28 @@ async function get_emojis_for_message(support_server) {
 }
 
 async function format_whitelist(interaction) {
-    const GuildData = await Guild.findOne({ _id: interaction.guild.id})
-    const rolesId = GuildData.whitelist
-    const role_names = []
-    console.log(`Айді ролей:` +rolesId)
-    rolesId.forEach(roleId => {
-        const role = interaction.guild.roles.cache.get(roleId);
-        if (role) {
-            console.log('Роль знайдено: ' + role.name);
-            role_names.push(role.name); // додаємо назву ролі до списку
-        } else {
-            console.log('Роль з ID ' + roleId + ' не знайдена!');
-        }
-    });
-    return role_names
+    try {
+
+        const GuildData = await Guild.findOne({ _id: interaction.guild.id})
+        if(GuildData) {
+        const rolesId = GuildData.whitelist
+        const role_names = []
+        console.log(`Айді ролей:` +rolesId)
+        rolesId.forEach(roleId => {
+            const role = interaction.guild.roles.cache.get(roleId);
+            if (role) {
+                console.log('Роль знайдено: ' + role.name);
+                role_names.push(role.name); // додаємо назву ролі до списку
+            } else {
+                console.log('Роль з ID ' + roleId + ' не знайдена!');
+            }
+        });
+    } else if(!GuildData) {
+        return []
+    }
+        return role_names
+    }catch(error) {
+        
+    
+}
 }
