@@ -32,6 +32,7 @@ module.exports = {
     
 
   async execute(interaction) {
+    if(interaction.user.id != "558945911980556288") return
     let target = interaction.options.getString('user_id');
 
     // Знаходимо запис у базі даних або створюємо новий
