@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { EmbedBuilder, MessageFlags, Message, ChannelType } = require('discord.js');
 require("moment-duration-format");
 const Guild = require('../../Schemas/guildSchema')
+const { clear_guild_language_cache } = require('../../utils/helper')
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('setup')
@@ -116,6 +117,7 @@ module.exports = {
                     { _id: interaction.guild.id},
                     { $set: {language: lang}}
                 )
+                clear_guild_language_cache(interaction.guild.id)
                 await interaction.reply('Успішно змінено мову на ' + lang)
             }catch(error) {
                 console.log(error)

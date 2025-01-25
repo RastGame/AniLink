@@ -3,6 +3,7 @@ const { EmbedBuilder } = require('discord.js');
 const moment = require("moment");
 require("moment-duration-format");
 const { version } = require('discord.js');
+const { getTranslation, load_translations, getEmbedTranslation, get_guild_language} = require('../../utils/helper')
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('ping')
@@ -25,12 +26,11 @@ module.exports = {
         // Створюємо ембед
         const ExampleEmbed = new EmbedBuilder()
             .setColor(0x427bff)
-            .setTitle('⚙Статистика бота:')
+            .setTitle(await getTranslation(interaction.guild.id, "test"))
             .addFields(
-                { name: 'Пінг бота', value: `${sent.createdTimestamp - interaction.createdTimestamp}ms`, inline: true },
-                { name: 'Аптайм', value: `${duration}`, inline: true },
-				{ name: 'Бібліотека', value: `\`\`discord.js v${version}\`\``, inline: false },
-				{ name: 'Розробник', value: `Maksym_Tyvoniuk`, inline: false }
+                { name: await getTranslation(interaction.guild.id, "ping_field1"), value: `${sent.createdTimestamp - interaction.createdTimestamp}ms`, inline: true },
+                { name: await getTranslation(interaction.guild.id, "ping_field2"), value: `${duration}`, inline: true },
+				{ name: await getTranslation(interaction.guild.id, "ping_field3"), value: `\`\`discord.js v${version}\`\``, inline: false }
             )
             .setTimestamp();
 

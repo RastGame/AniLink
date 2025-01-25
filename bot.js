@@ -3,15 +3,20 @@ const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits, REST, Routes } = require('discord.js');
 require('dotenv').config();
 const mongoose = require('mongoose');
-
+const { load_translations, getTransation } = require('./utils/helper')
 const mongoURI = process.env.MONGODB_TOKEN;
+async function mongodbConnect() {
+	
+	console.log('URI' + mongoURI)
 // Підключення до MongoDB
-mongoose.connect(mongoURI, {
-	useNewUrlParser: true,
-	useUnifiedTopology: true,
-  })
-    .then(() => console.log('Connected to MongoDB'))
-    .catch((err) => console.error('MongoDB connection error:', err));
+	mongoose.connect(mongoURI, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+	})
+		.then(() => console.log('Connected to MongoDB'))
+		.catch((err) => console.error('MongoDB connection error:', err));
+}
+
 
 // Токен бота та ID
 const token = process.env.TOKEN;
@@ -36,4 +41,15 @@ for (const file of eventFiles) {
 }
 
 // Авторизація бота
-client.login(token);
+async function start_bot(client, token, mongoURI){
+	try{
+		await mongodbConnect(mongoURI)
+		await client.login(token);
+		}catch(error) {
+			console.log('Виникла помилка при спробі запустити бота(start_bot)' + error)
+			return
+	}
+}
+
+
+start_bot(client, token, mongoURI)

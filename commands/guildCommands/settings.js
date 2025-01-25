@@ -38,7 +38,7 @@ module.exports = {
                     userblocking ='Вимкнено'
                 } 
                 if(!guildData.logchannel && guildData.logchannel == null){guildData.logchannel="Немає"}
-                if(!guildData.whitelist && guildData.whitelist == null){guildData.whitelist="Немає даних"}
+                if(role_names == null || !role_names == undefined){guildData.whitelist="Немає даних"}
                 if(!guildData.userblocking && guildData.userblocking == null){guildData.userblocking="Вимкнено"}
                 // Створюємо ембед
                 const ExampleEmbed = new EmbedBuilder()
@@ -88,7 +88,11 @@ async function format_whitelist(interaction) {
     try {
 
         const GuildData = await Guild.findOne({ _id: interaction.guild.id})
-        if(GuildData) {
+        if(!GuildData || guildData.whitelist == null || guildData == undefined || guildData.whitelist == []) {
+            console.log('Бачу, що немає ролей')
+            return []
+        
+    } else if(GuildData) {
         const rolesId = GuildData.whitelist
         const role_names = []
         console.log(`Айді ролей:` +rolesId)
@@ -101,8 +105,6 @@ async function format_whitelist(interaction) {
                 console.log('Роль з ID ' + roleId + ' не знайдена!');
             }
         });
-    } else if(!GuildData) {
-        return []
     }
         return role_names
     }catch(error) {
