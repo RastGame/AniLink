@@ -4,6 +4,7 @@ const moment = require("moment");
 require("moment-duration-format");
 const { version } = require('discord.js');
 const Guild = require('../../Schemas/guildSchema')
+const { getTranslation } = require('../../utils/helper')
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('settings')
@@ -32,34 +33,34 @@ module.exports = {
                 const emoji_park = await get_emojis_for_message(support_server)
                 
                 if(guildData.userblocking==true) {
-                    userblocking = 'Увімкнено'
+                    userblocking = await getTranslation(interaction.guild.id, "settings_enabled")
                 }
                 else if(guildData.userblocking==false || !guildData.userblocking) {
-                    userblocking ='Вимкнено'
+                    userblocking = await getTranslation(interaction.guild.id, "settings_disabled")
                 } 
-                if(!guildData.logchannel && guildData.logchannel == null){guildData.logchannel="Немає"}
-                if(role_names == null || !role_names == undefined){guildData.whitelist="Немає даних"}
-                if(!guildData.userblocking && guildData.userblocking == null){guildData.userblocking="Вимкнено"}
+                if(!guildData.logchannel && guildData.logchannel == null){guildData.logchannel=`${await getTranslation(interaction.guild.id, "settings_nodata")}`}
+                if(!role_names ){guildData.whitelist=`${await getTranslation(interaction.guild.id, "settings_nodata")}`}
+                if(!guildData.userblocking && guildData.userblocking == null){guildData.userblocking=`${await getTranslation(interaction.guild.id, "settings_disabled")}`}
                 // Створюємо ембед
                 const ExampleEmbed = new EmbedBuilder()
 
                 .setColor(0x5e66ff)
-                .setTitle(`${emoji_park.settings_emoji}Налаштування спільноти`)
-                .setDescription('Ознайомтесь із командами та параметрами нижче.\n**Переглядати та змінювати налаштування може лише __власник серверу__.**')
+                .setTitle(`${emoji_park.settings_emoji}${await getTranslation(interaction.guild.id, "settings_title")}`)
+                .setDescription(await getTranslation(interaction.guild.id, "settings_description"))
                 .addFields(
-                    { name: `${emoji_park.logs_channel_emoji}Канал логів`, value: `<#${guildData.logchannel}>` || "не призначено", inline: true },
-                    { name: `${emoji_park.whitelist_emoji}Білий список`, value: `${role_names}` || "Немає даних", inline: true },
-                    { name: 'Блокування запрошень та користувачів', value: userblocking || "Вимкнено", inline: false },
+                    { name: `${emoji_park.logs_channel_emoji}${await getTranslation(interaction.guild.id, "settings_logchannel")}`, value: `<#${guildData.logchannel}>` || `${await getTranslation(interaction.guild.id, "settings_didnt_setup")}`, inline: true },
+                    { name: `${emoji_park.whitelist_emoji}${await getTranslation(interaction.guild.id, "settings_whitelist")}`, value: `${await getTranslation(interaction.guild.id, "settings_didnt_setup")}` || `${await getTranslation(interaction.guild.id, "settings_didnt_setup")}`, inline: true },
+                    { name: `${await getTranslation(interaction.guild.id, "settings_blocking")}`, value: userblocking || `${await getTranslation(interaction.guild.id, 'settings_disabled')}`, inline: false },
                     // { name: 'Розробник', value: `Maksym_Tyvoniuk`, inline: false }
                 )
-                .setFooter({text: "Напишіть /setup для зміни налаштувань"})
+                .setFooter({text: await getTranslation(interaction.guild.id, "settings_footer")})
 
         // Якщо вже є відповідь, редагуємо її
 
                 await interaction.reply({ embeds: [ExampleEmbed], flags: MessageFlags.Ephemeral});
         
             } else {
-                await interaction.reply({ content: 'У вас немає прав на використання цієї команди', flags: MessageFlags.Ephemeral})
+                await interaction.reply({ content: await getTranslation(interaction.guild.id, "no_perms"), flags: MessageFlags.Ephemeral})
                 console.log('Немає прав власника серверу, неможна використовувати команду')
                 return
             }
@@ -86,29 +87,32 @@ async function get_emojis_for_message(support_server) {
 
 async function format_whitelist(interaction) {
     try {
+        const GuildData = await Guild.findOne({ _id: interaction.guild.id });
+        if (!GuildData || !GuildData.whitelist || GuildData.whitelist.length === 0) {
+            console.log('Бачу, що немає ролей');
+            return []; // Повертаємо порожній масив, якщо немає ролей
+        }
 
-        const GuildData = await Guild.findOne({ _id: interaction.guild.id})
-        if(!GuildData || guildData.whitelist == null || guildData == undefined || guildData.whitelist == []) {
-            console.log('Бачу, що немає ролей')
-            return []
-        
-    } else if(GuildData) {
-        const rolesId = GuildData.whitelist
-        const role_names = []
-        console.log(`Айді ролей:` +rolesId)
+        const rolesId = GuildData.whitelist;
+        let role_mentions = [];
+        console.log(`Айді ролей: ${rolesId}`);
+
         rolesId.forEach(roleId => {
             const role = interaction.guild.roles.cache.get(roleId);
             if (role) {
                 console.log('Роль знайдено: ' + role.name);
-                role_names.push(role.name); // додаємо назву ролі до списку
+                // Додаємо згадку про роль до списку
+                role_mentions.push(role.toString()); // Згадка про роль
             } else {
                 console.log('Роль з ID ' + roleId + ' не знайдена!');
             }
         });
+
+        return role_mentions; // Повертаємо масив згадок про ролі
+    } catch (error) {
+        console.error('Помилка у форматуванні білого списку:', error);
+        return []; // Повертаємо порожній масив у випадку помилки
     }
-        return role_names
-    }catch(error) {
-        
-    
-}
+
+
 }
