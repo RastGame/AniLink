@@ -3,7 +3,7 @@ const { EmbedBuilder } = require('discord.js');
 const moment = require("moment");
 require("moment-duration-format");
 const { version } = require('discord.js');
-const { getTranslation, load_translations, getEmbedTranslation, get_guild_language} = require('../../utils/helper')
+const { getTranslation} = require('../../utils/helper')
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('ping')
