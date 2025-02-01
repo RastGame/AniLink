@@ -242,11 +242,15 @@ module.exports = {
             const isOwner = await check_owner_permission(interaction)
             if(isOwner === true){
                 try{
-           
+
                     const choice = interaction.options.getString('ban_users_option')
                     const guildData = await Guild.findOne({ _id: interaction.guild.id})
                     const isChoiceTrue = choice === 'true'
-    
+                    
+                    if(!guildData) {
+                        guildData = new Guild({ _id: interaction.guild.id})
+                        await guildData.save()
+                    }
                     if(guildData.blocking_enabled === isChoiceTrue) { // Перевірка, чи було введено той самий параметр, який вже встановлений на сервері
                         await interaction.reply(await getTranslation(interaction.guild.id, "setup_banusers_isthesame"))
                         return
