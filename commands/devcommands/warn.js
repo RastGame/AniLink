@@ -21,7 +21,8 @@ module.exports = {
           { name: '🤖 Краш бот', value: 'crash bot' },
           { name: '🧨 Краш серверів', value: 'crashing guild' },
           { name: '🛠 Розробка/реклама краш софту', value: 'crash bot/crash soft develop' },
-          { name: '🧌 Русня', value: 'russian' }
+          { name: '🧌 Русня', value: 'russian' },
+          { name: 'Рейд серверів', value: 'raider' }
         )
     )
     .addStringOption(option =>
@@ -33,27 +34,27 @@ module.exports = {
 
   async execute(interaction) {
     if(interaction.user.id != "558945911980556288") return
-    let target = interaction.options.getString('user_id');
+      let target = interaction.options.getString('user_id');
+      
 
-    // Знаходимо запис у базі даних або створюємо новий
-    let targetWarns = await Warning.findOne({ _id: target });
-    if (!targetWarns) {
-      targetWarns = new Warning({ _id: target, warns: 0 }); // Ініціалізуємо кількість попереджень
-    }
+      let targetWarns = await Warning.findOne({ _id: target });
+      if (!targetWarns) {
+        targetWarns = new Warning({ _id: target, warns: 0 }); 
+      }
 
 
-    const reason = interaction.options.getString('reason')
-    // Додаємо попередження
-    targetWarns.warns += 1;
-    targetWarns.reasons.push({
-      author_id: interaction.user.id,
-      reason: reason,
-      proofs: interaction.options.getString('proofs') // Докази
-    })
-    // Зберігаємо зміни
-    await targetWarns.save();
+      const reason = interaction.options.getString('reason')
 
-    // Відповідаємо користувачеві
-    await interaction.reply(`Попередження видано успішно! Загальна кількість попереджень: ${targetWarns.warns}`);
+      targetWarns.warns += 1;
+      targetWarns.reasons.push({
+        author_id: interaction.user.id,
+        reason: reason,
+        proofs: interaction.options.getString('proofs') // Докази
+      })
+
+      await targetWarns.save();
+
+
+      await interaction.reply(`Попередження видано успішно! Загальна кількість попереджень: ${targetWarns.warns}`);
   },
 };
