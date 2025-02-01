@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { EmbedBuilder } = require('discord.js');
-const Warning = require('../../Schemas/userSchema'); // Шлях до схеми попереджень
+const Warning = require('../../Schemas/userSchema'); 
 const { getTranslation } = require('../../utils/helper')
 module.exports = {
   data: new SlashCommandBuilder()
@@ -13,7 +13,7 @@ module.exports = {
     ),
 
   async execute(interaction) {
-    let userId = interaction.options.getString('user_id') // Отримуємо ID користувача як рядок
+    let userId = interaction.options.getString('user_id') 
     console.log(`Айді, який перевіряю: ${userId}`);
 
     // Перевірка, чи є це число
@@ -24,7 +24,7 @@ module.exports = {
       });
     }
 
-    // Конвертація ID в число
+
     const userIdNumber = userId;
 
     // Перевірка на валідність числа
@@ -36,27 +36,27 @@ module.exports = {
     }
 
     try {
-      // Шукаємо попередження для цього користувача в базі даних
+  
       console.log(`Запит в базу:id: ${userIdNumber}`);
-      const userWarnings = await Warning.findOne({ _id: userIdNumber });
+      const userData = await Warning.findOne({ _id: userIdNumber });
 
       const noWarnsEmbed = new EmbedBuilder()
         .setColor('#4CAF50') 
         .setTitle(await getTranslation(interaction.guild.id, "warns_noWarns", {userId}))
         .addFields({
-          name: await getTranslation(interaction.guild.id, "warns"),
+          name: await getTranslation(interaction.guild.id, "warns", {warnings_count: 0}),
           value: await getTranslation(interaction.guild.id, "warns_not_found")
         })
         .setTimestamp();
 
-      // Перевірка, чи є попередження
-      if (!userWarnings) {
+
+      if (!userData) {
         return interaction.reply({ embeds: [noWarnsEmbed] });
       }
-      const warnings_count = userWarnings.warns 
+      const warnings_count = userData.warns 
       const warnings_data = (
         await Promise.all(
-          userWarnings.reasons.map(async r => {
+          userData.reasons.map(async r => {
             const authorText = await getTranslation(interaction.guild.id, "warns_author");
             const reasonText = await getTranslation(interaction.guild.id, "warns_reason");
             return `${authorText} ${r.author_id}, ${reasonText} ${r.reason}`;
@@ -64,13 +64,13 @@ module.exports = {
         )
       ).join('\n');
       console.log(await getTranslation(interaction.guild.id, "warns"))
-      // Якщо попередження є, створюємо Embed для відображення
+      
       const embed = new EmbedBuilder()
         .setColor('#e74d3c') 
         .setTitle(await getTranslation(interaction.guild.id, "warns", {warnings_count}))
         .setDescription(
           await getTranslation(interaction.guild.id, "warns_description", { userId, warnings_count }) + 
-          "\n" + // Два переноси для візуального відділення
+          "\n" + 
           warnings_data
         )
         
