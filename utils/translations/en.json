@@ -46,5 +46,12 @@
     "reason_three_warnings": "3/3 warnings",
 
     "banned_link": "Invite Blocking",
-    "message": "Message:"
+    "message": "Message:",
+
+    "help_title": "Information",
+    "help_description": "Make sure the bot has a high role on the server.",
+    "help_field_one": "Command List",
+    "help_value_one": "</ping:1270696551400079428> - shows the bot's status and ping\n</settings:1270696551400079430> - displays your guild's settings\n</setup whitelist:1334464985945870398> - adds roles to the guild's whitelist\n</setup ban_users:1334464985945870398> - enables the feature to block invites and blacklist users\n</setup logchannel:1333589448201470059> - assigns a Webhook for logs\n</warns:1327751903269879879> - view a user's warning list",
+    "help_field_two": "Useful Links",
+    "help_value_two": "Support Server"
 }
