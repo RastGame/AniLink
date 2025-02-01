@@ -52,9 +52,8 @@ module.exports = {
 
             // Реєстрація локальних команд на гільдії
             await rest.put(
-                Routes.applicationGuildCommands(clientId, guildId), {
-                    body: commands,
-                },
+                Routes.applicationCommands(clientId), // <- замість applicationGuildCommands
+                { body: commands },
             );
             console.log('Локальні команди успішно зареєстровані!');
 
