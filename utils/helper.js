@@ -9,14 +9,12 @@ const cachedGuildLanguages = {};
 const CACHE_TTL = 60 * 60 * 1000; // 1 година
 const cachedTimestamps = {}; 
 
-// Завантаження перекладів для конкретної мови
 function load_translations(language) {
     if (cachedTranslations[language] && (Date.now() - cachedTimestamps[language] < CACHE_TTL)) {
         return cachedTranslations[language];
     }
 
     const filePath = path.join(__dirname, 'translations', `${language}.json`);
-    console.log('Шлях до файлу перекладів:', filePath); // Логування шляху
 
     if (fs.existsSync(filePath)) {
         try {
@@ -24,7 +22,6 @@ function load_translations(language) {
             const translations = JSON.parse(fileContent);
             cachedTranslations[language] = translations;
             cachedTimestamps[language] = Date.now();
-            console.log(`Переклади для мови ${language} успішно завантажено.`);
             return translations;
         } catch (error) {
             console.error(`Помилка читання файлу перекладів для мови ${language}:`, error);
@@ -47,7 +44,7 @@ async function get_guild_language(guildId) {
 
         if (!guildData || !guildData.language) {
             console.log('Не знайдено мову для гільдії. Встановлюємо за замовчуванням.');
-            guildData = new Guild({ _id: guildId, language: 'ua' });
+            guildData = new Guild({ _id: guildId});
             await guildData.save();
         }
 
@@ -64,20 +61,16 @@ async function get_guild_language(guildId) {
 function clear_guild_language_cache(guildId) {
     if (cachedGuildLanguages[guildId]) {
         delete cachedGuildLanguages[guildId];
-        console.log(`Кеш мови для гільдії ${guildId} очищено.`);
     } else {
-        console.log(`Кеш мови для гільдії ${guildId} не знайдено.`);
     }
 }
 
 // Функція для отримання перекладу, яка підтримує підстановку змінних
 async function getTranslation(guildId, phrase, variables = {}) {
     const lang = await get_guild_language(guildId);
-    console.log(`Отримана мова для гільдії ${guildId}: ${lang}`);
 
     const translations = load_translations(lang);
     if (!translations) {
-        console.warn(`Переклади не знайдено для мови: ${lang}`);
         return `Переклад для "${phrase}" відсутній`;
     }
 
@@ -88,7 +81,6 @@ async function getTranslation(guildId, phrase, variables = {}) {
         translation = translation.replace(new RegExp(`\\$\\{${key}}`, 'g'), value);
     }
 
-    console.log(`Переклад для "${phrase}": ${translation}`);
     return translation;
 }
 

@@ -167,5 +167,6 @@ async function check_owner_permission(interaction) {
 } 
 module.exports = {
     settingsHandler,
-    check_owner_permission
+    check_owner_permission,
+    get_emojis_for_message
 };
