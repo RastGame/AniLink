@@ -21,6 +21,7 @@ const guildSchema = new mongoose.Schema({
     },
     language: {
         type: String,
+        default: 'en'
     }
     
 }, { collection: 'collguilds' });  // Вказуємо колекцію вручну

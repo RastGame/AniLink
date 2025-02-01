@@ -30,23 +30,3 @@ const User = mongoose.model('User', userSchema);
 
 module.exports = User;
 
-// Запит до колекції
-async function checkUserWarnings(userId) {
-    console.log(`Перевіряю попередження для користувача з ID: ${userId}`);
-
-    try {
-        // Лог перед запитом
-        const userWarnings = await User.findOne({ _id: userId });
-        
-        // Лог після запиту
-        console.log('Попередження знайдено:', userWarnings);
-
-        if (!userWarnings) {
-            console.log(`Користувач з ID ${userId} не знайдений в колекції.`);
-        } else {
-            console.log(`Користувач з ID ${userId} має попередження:`, userWarnings.warns);
-        }
-    } catch (error) {
-        console.error('Помилка при перевірці попереджень:', error);
-    }
-}
