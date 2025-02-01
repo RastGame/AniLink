@@ -23,14 +23,16 @@ async function sendLeaveLogs(guild) {
 
 async function banLogs(user, guild, warnsCount) {
     try{
-        await webhook.send({ content: `> \`\`${formattedTime}\`\` користувач ${user.globalName} | \`\`${user.id}\`\` був заблокований. Попереджень: ``${warnsCount}`` . Гільдія: \`\`${guild.id}\`\``})
+        console.log(`Користувач: `+user)
+        await webhook.send({ content: `> \`\`${formattedTime}\`\` користувач ${user.globalName} | \`\`${user.id}\`\` був заблокований. Попереджень: \`\`${warnsCount}\`\` . Гільдія: \`\`${guild.id}\`\``})
     }catch (error) {
         console.error('Помилка у banLogs:', error);
     }
 }
 async function linkLogs(message, user, guild, warnsCount) {
     try{
-        await webhook.send({ content: `> \`\`${formattedTime}\`\` користувач ${user.globalName} | \`\`${user.id}\`\` Надіслав запрошення. Попереджень: ``${warnsCount}`` . Гільдія: \`\`${guild.id}\`\`. Контект: \n\`\`${message}\`\``})
+        console.log(`Користувач: `+user)
+        await webhook.send({ content: `> \`\`${formattedTime}\`\` користувач ${user.globalName} | \`\`${user.id}\`\` Надіслав запрошення. Попереджень: \`\`${warnsCount}\`\` . Гільдія: \`\`${guild.id}\`\`. Контект: \n\`\`${message}\`\``})
     }catch (error) {
         console.error('Помилка у banLogs:', error);
     }
