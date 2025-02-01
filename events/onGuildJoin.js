@@ -9,7 +9,6 @@ module.exports = {
     once: false,
     async execute(guild) {
         try{
-            console.log(guild)
             
             const client = guild.client
             let guildData = await Guild.findOne({ _id: guild.id})
