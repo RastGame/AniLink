@@ -3,13 +3,11 @@ const path = require('path');
 const mongoose = require('mongoose');
 const Guild = require('../Schemas/guildSchema');
 
-// Кеш для перекладів і мов
 const cachedTranslations = {};
 const cachedGuildLanguages = {};
 
-// Час життя кешу (в мілісекундах)
 const CACHE_TTL = 60 * 60 * 1000; // 1 година
-const cachedTimestamps = {}; // Зберігаємо час останнього оновлення кешу
+const cachedTimestamps = {}; 
 
 // Завантаження перекладів для конкретної мови
 function load_translations(language) {
@@ -94,32 +92,13 @@ async function getTranslation(guildId, phrase, variables = {}) {
     return translation;
 }
 
-// Функція для перекладу в Embed (підтримує і тексти, і змінні)
-async function getEmbedTranslation(guildId, embedFields) {
-    const lang = await get_guild_language(guildId);
-    const translations = load_translations(lang);
-
-    if (!translations) {
-        console.warn(`Переклади для мови ${lang} не знайдено. Повертаємо оригінальні поля.`);
-        return embedFields;
-    }
-
-    return embedFields.map(field => {
-        const translatedName = translations[field.name] || field.name;
-        const translatedValue = translations[field.value] || field.value;
-
-        return {
-            name: translatedName,
-            value: translatedValue,
-            inline: field.inline
-        };
-    });
-}
-
 module.exports = {
     load_translations,
     getTranslation,
-    getEmbedTranslation,
     get_guild_language,
-    clear_guild_language_cache
+    clear_guild_language_cache,
+    colors: {
+        SUCCESSFUL_COLOR: '#86fa50',
+        ERROR_COLOR: '#fa7850'
+    }
 };
