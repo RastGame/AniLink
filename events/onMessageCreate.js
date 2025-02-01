@@ -17,26 +17,33 @@ module.exports = {
             const isRole = await check_whitelist_and_owner(message)
             const user_id = message.author.id
             const channel_name = message.channel.name
-            console.log(`isRole: ${isRole}`)
 
             const is_blocking_enabled = await check_blocking(message)
-            console.log(`is_blocking_enabled: ${is_blocking_enabled}`)
             
-            if(isRole!=true && is_blocking_enabled==true && !message.author.bot && message.author.id != message.guild.ownerId) {
-                const userData = await User.findOne({ _id: message.author.id})
-                if(!userData) {
-                    return
+            if(isRole===false && is_blocking_enabled===true && !message.author.bot && message.author.id != message.guild.ownerId) {
+                let  userData = await User.findOne({ _id: message.author.id})
+                if (!userData) {
+                    userData = new User({
+                        _id: message.author.id,
+                        warns: 1,
+                        reasons: [{ 
+                            author_id: 'BOT', 
+                            reason: "[Auto] links", 
+                            proofs: null 
+                        }]
+                    });
+                    await userData.save(); 
+                
                 }else if(userData) {
 
                 
-                if(userData.warns >= 3) {
+                if(userData.warns >= 3 && is_blocking_enabled===true) {
                     const member = message.guild.members.cache.get(message.author.id)
                     const warnsCount = userData.warns
                     const botMember = message.guild.members.cache.get(message.client.user.id)
-                    const canBan = await canBotBanMember(botMember, member) // Перевірка, чи може бот заблокувати людину(наявність прав і позиція ролі)
+                    const canBan = await canBotBanMember(botMember, member) 
                     if(canBan) {
                         try{
-                            
                             const user = member.user
                             
                             await sendBanMessage(user, guild)
@@ -53,7 +60,6 @@ module.exports = {
                             }
                         }
                     }else {
-                        console.log('[canBan]не можу заблокувати користувача')
                         return
                     }
                 }
@@ -114,25 +120,24 @@ async function check_whitelist_and_owner(message) {
         const member = message.member; 
 
         if (!member) {
-            console.log('Не вдалося отримати учасника!');
+
             return; 
         }
 
         const memberRoles = member.roles.cache
 
-        console.log('Ролі користувача:');
         memberRoles.forEach(role => {
-            console.log(`- ${role.name} (ID: ${role.id})`)
+
         });
 
  
         const hasWhitelistedRole = memberRoles.some(role => whitelist_data.includes(role.id));
 
         if (hasWhitelistedRole) {
-            console.log('Користувач має роль, яка є у whitelist');
+
             return true
         } else {
-            console.log('Користувач не має ролі з whitelist');
+
             return false
         }
 
@@ -142,13 +147,12 @@ async function check_whitelist_and_owner(message) {
 }
 async function check_blocking(message) {
     try {
-        const guildData = await Guild.findOne({ _id: message.guild.id }); 
+        const guildData = await Guild.findOne({ _id: message.guild.id });
+ 
         const blockingData = guildData ? guildData.blocking_enabled: false;
         if(blockingData==true) {
-            console.log('Блокування ввімкнено на сервері')
             return true
         }else if(blockingData==false) {
-            console.log('Блокування вимкнено')
             return false
         }
     }catch(error) {
