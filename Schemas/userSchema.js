@@ -16,15 +16,22 @@ const userSchema = new mongoose.Schema({
             type: String,
             required: true,
         },
+        message_content: {
+            type: String
+        },
         reason: {
             type: String,
             required: true,
         },
         proofs: {
             type: String
-        }
+        },
+        timestamp: {
+            type: String,
+            required: true
+        },
     }],
-}, { collection: 'collusers' });  // Вказуємо колекцію вручну
+}, { collection: 'collusers' });  
 
 const User = mongoose.model('User', userSchema);
 
