@@ -24,18 +24,18 @@ async function sendBanMessage(user, guild) {
             }catch(error) {
                 console.log(error)
                 if (error.code === 50007) {
-                    console.log('Користувач не дозволив отримувати приватні повідомлення від цього бота.'); // Специфічне повідомлення для цього коду помилки
+                    console.log('Користувач не дозволив отримувати приватні повідомлення від цього бота.');
                 }
 
             }
             
     }
 
-async function canBotBanMember(bot, targetMember) {
+async function canBotBanMember(bot, member) {
 
     const hasBanPermission = bot.permissions.has('BAN_MEMBERS');
 
-    const isHigherRole = bot.roles.highest.position > targetMember.roles.highest.position;
+    const isHigherRole = bot.roles.highest.position > member.roles.highest.position;
 
     return hasBanPermission && isHigherRole;
 }
