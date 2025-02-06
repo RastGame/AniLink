@@ -1,4 +1,4 @@
-const { Events, Collection, REST, Routes, PresenceUpdateStatus} = require('discord.js');
+const { Events, Collection, REST, Routes, PresenceUpdateStatus, Activity, ActivityType} = require('discord.js');
 const path = require('path');
 const fs = require('fs');
 const { memoryUsage } = require('process');
@@ -15,6 +15,8 @@ module.exports = {
         client.commands = new Collection()
         const foldersPath = path.join(__dirname, '..', 'commands');
 
+        await client.user.setActivity('/help', {type: ActivityType.Listening})
+        
         async function loadCommands(folderPath) {
             const entries = fs.readdirSync(folderPath, { withFileTypes: true });
             for (const entry of entries) {
