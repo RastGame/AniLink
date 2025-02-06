@@ -1,18 +1,18 @@
-const { Events, Collection, REST, Routes, EmbedBuilder, WebhookClient } = require('discord.js');
-const path = require('path');
-const fs = require('fs');
+const { Events} = require('discord.js');
 require('dotenv').config();
 const Guild = require('../Schemas/guildSchema')
 const User = require('../Schemas/userSchema')
-const { sendBanMessage, canBotBanMember} = require('../utils/sendDmMessages')
-const { guild_link_delete_log, guild_ban_log } = require('../utils/guildLogs')
-const { getTranslation } = require('../utils/helper')
-const { banLogs, linkLogs } = require('../utils/devLogs')
+const { canBotBanMember} = require('../utils/sendDmMessages')
+
+const {warning_cache_check, add_warns_to_cache} = require('../utils/userWarningsCaching')
+const { ban_member, delete_message_and_notice, check_blocking, check_whitelist_and_owner } = require('../utils/memberBan')
+
 module.exports = {
     name: Events.MessageCreate,
 
     async execute(message) {
         try{
+
             const guild = message.guild
             const isRole = await check_whitelist_and_owner(message)
             const user_id = message.author.id
@@ -21,43 +21,18 @@ module.exports = {
             const is_blocking_enabled = await check_blocking(message)
             
             
-            if(guildData && guildData.blocking_enabled === true) {
-                let userData = await User.findOne({ _id: message.author.id})
-                if(userData) {
-                    if(userData.warns >= 3 && is_blocking_enabled===true) {
-                        const member = message.guild.members.cache.get(message.author.id)
-                        const warnsCount = userData.warns
-                        const botMember = message.guild.members.cache.get(message.client.user.id)
-                        const canBan = await canBotBanMember(botMember, member) 
-                        if(canBan) {
-                            try{
-                                const user = member.user
-                                
-                                await sendBanMessage(user, guild)
-                                await member.ban()
-                                await guild_ban_log(message, user_id, channel_name)
-                                await banLogs(message, user, guild, warnsCount)
-                                
-                            }catch(error) {
-                                console.log(error)
-                                try{ 
-                                    await member.ban()
-                                }catch(error) {
-                                    console.log(error)
-                                }
-                            }
-                        }else {
-                            return
-                        }
-                    }
-                }
-            }
                 const regex = /(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li|club)|discord(app)?\.com\/invite)\/\S+/i;
                 const isMessageLink = regex.test(message.content) 
-                console.log(isMessageLink)
+                // console.log(isMessageLink)
                     if(isMessageLink === true) {
+
                         if(isRole===false && is_blocking_enabled===true && !message.author.bot && message.author.id != message.guild.ownerId) {
-                            let  userData = await User.findOne({ _id: message.author.id})
+                            let userData = await User.findOne({ _id: message.author.id})
+                            const date = new Date()
+                            const formatted_date = date.toLocaleString();
+
+                            await add_warns_to_cache(user_id)
+                            
                             if (!userData) {
                                 userData = new User({
                                     _id: message.author.id,
@@ -65,12 +40,14 @@ module.exports = {
                                     reasons: [{ 
                                         author_id: 'BOT', 
                                         reason: "[Auto] links", 
-                                        proofs: null 
+                                        proofs: null,
+                                        message_content: message.content,
+                                        timestamp: formatted_date
                                     }]
                                 });
                                 await userData.save(); 
                                 await delete_message_and_notice(message, userData, channel_name)
-                                return
+                                
                             }else if(userData) {
                                 await User.updateOne(
                                     { _id: user_id },  
@@ -80,102 +57,47 @@ module.exports = {
                                         reasons: {
                                           author_id: 'BOT',
                                           reason: "[Auto]links",
-                                          proofs: null
+                                          proofs: null,
+                                          message_content: message.content,
+                                          timestamp: formatted_date
                                         }
                                       }
                                     },
                                     { upsert: true }  
                                   );
+                                await delete_message_and_notice(message, userData, channel_name)
                             }
 
                 }else if(isMessageLink === false){
                     console.log('Не є посиланням')
                     return 
                 }
+
+            
+            }
+            if (guildData && guildData.blocking_enabled === true) {
+                const member = message.member
+                const user_cache = await warning_cache_check(message)
+                console.log(`Отриманий кеш юзера ${message.author.id}: `+ user_cache)
+                if(user_cache) {
+                    if(user_cache >= 3 && is_blocking_enabled===true) {
+
+                        const botMember = message.guild.members.cache.get(message.client.user.id)
+                        const canBan = await canBotBanMember(botMember, member) 
+
+                        if(canBan) { // Перевіряє чи бот може заблокувати людину. Якшо так - то відбувається функція блокування
+                            await ban_member(message, user_cache)
+                        }else {
+                            return
+                        }
+                    }
+                }
             }
                 
-            
-        
     }catch(error) {
         console.log(error)
     }
+
 }
 }
-async function check_whitelist_and_owner(message) {
-    try {
-        const guildData = await Guild.findOne({ _id: message.guild.id });
-        const whitelist_data = guildData ? guildData.whitelist : []; 
-        const member = message.member; 
 
-        if (!member) {
-
-            return; 
-        }
-
-        const memberRoles = member.roles.cache
-
-        memberRoles.forEach(role => {
-
-        });
-
- 
-        const hasWhitelistedRole = memberRoles.some(role => whitelist_data.includes(role.id));
-
-        if (hasWhitelistedRole) {
-
-            return true
-        } else {
-
-            return false
-        }
-
-    } catch (error) {
-        console.error('Сталася помилка:', error);
-    }
-}
-async function check_blocking(message) {
-    try {
-        const guildData = await Guild.findOne({ _id: message.guild.id });
- 
-        const blockingData = guildData ? guildData.blocking_enabled: false;
-        if(blockingData==true) {
-            return true
-        }else if(blockingData==false) {
-            return false
-        }
-    }catch(error) {
-        console.log('check_block error: '+ error)
-    }
-}
-
-async function delete_message_and_notice(message, userData, channel_name) {
-    try{
-        const user = message.author
-        const guild = message.guild
-        const user_id = message.author.id
-        const warnsCount = userData.warns
-        const ExampleEmbed = new EmbedBuilder()
-
-                    .setColor(0xE53935)
-                    .setTitle(await getTranslation(guild.id, "no_link_title"))
-                    .setDescription(await getTranslation(guild.id, "no_links_description"))
-
-        await message.delete().then(message => {
-            message.channel.send({ content: `<@${message.author.id}>`,embeds: [ExampleEmbed]}).then(message => {
-                setTimeout(() => {
-                    message.delete().catch(console.error);
-                }, 10000);
-            })
-            guild_link_delete_log(message, user_id, channel_name )
-        })
-        try{
-            await linkLogs(message, user, guild, warnsCount)
-
-        }catch(error) {
-            console.warn('Помилка при надсиланні linkLogs: '+ error)
-        }
-        
-    }catch(error) { 
-        console.warn('Виникла помилка в функції delete_message_and_notice:'+ error)
-    }
-}
