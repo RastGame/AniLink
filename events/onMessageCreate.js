@@ -17,6 +17,7 @@ module.exports = {
             const isRole = await check_whitelist_and_owner(message)
             const user_id = message.author.id
             const channel_name = message.channel.name
+            console.log(channel_name)
             const guildData = await Guild.findOne({ _id: message.guild.id });
             const is_blocking_enabled = await check_blocking(message)
             
