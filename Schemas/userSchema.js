@@ -27,8 +27,7 @@ const userSchema = new mongoose.Schema({
             type: String
         },
         timestamp: {
-            type: String,
-            required: true
+            type: String
         },
     }],
 }, { collection: 'collusers' });  
