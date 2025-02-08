@@ -1,6 +1,7 @@
 const { Events, MessageFlags, EmbedBuilder, Embed, ButtonBuilder, ButtonStyle, ActionRowBuilder, PermissionOverwriteManager, PermissionOverwrites, PermissionFlagsBits, ModalBuilder, TextInputBuilder, TextInputStyle, flatten } = require('discord.js');
 require('dotenv').config();
 const { interactionLogs } = require('../utils/devLogs')
+const { send_webhook } = require('../utils/sendBugReport')
 module.exports = {
 	name: Events.InteractionCreate,
 	async execute(interaction) {
@@ -14,6 +15,17 @@ module.exports = {
 			}
 		}
 		
+		if(interaction.isModalSubmit()) {
+			try{
+				if(interaction.customId === 'bug_report') {
+					const bug_text = await interaction.fields.getTextInputValue('bug_input')
+					await send_webhook(interaction, bug_text)
+				}
+			}catch(error) {
+				console.log(error)
+			}
+			
+		}
 		if (interaction.isChatInputCommand()) {	
 			if (!interaction.inGuild() || !interaction.isCommand()) return;
 			const command = interaction.client.commands.get(interaction.commandName);
