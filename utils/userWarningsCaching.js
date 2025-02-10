@@ -7,11 +7,9 @@ async function warning_cache_check(message) {
         let cacheEntry = UserWarnsCache.get(message.author.id);
 
         if (cacheEntry && (Date.now() - cacheEntry.timestamp) < CACHE_TTL) {
-            console.log('Кеш є');
             return cacheEntry.warns;
         }
     
-        console.log('Звернення до бази даних.');
         let userData = await User.findOne({ _id: message.author.id });
     
         let warns = userData ? userData.warns : 0;
@@ -42,7 +40,6 @@ setInterval(() => {
     for (let [user_id, cacheEntry] of UserWarnsCache) {
         if ((now - cacheEntry.timestamp) >= CACHE_TTL) {
             UserWarnsCache.delete(user_id);
-            console.log(`Кеш видалено для користувача ${user_id}`);
         }
     }
 }, CACHE_TTL);
