@@ -5,6 +5,7 @@ require("moment-duration-format");
 const { version } = require('discord.js');
 const { getTranslation} = require('../../utils/helper')
 module.exports = {
+    cooldown: 3,
     data: new SlashCommandBuilder()
         .setName('ping')
         .setDescription('Replies with Pong!'),
