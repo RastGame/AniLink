@@ -8,6 +8,7 @@ const { sendBanMessage } = require('../utils/sendDmMessages')
 async function ban_member(message, user_cache) {
     try{
         const member = message.guild.members.cache.get(message.author.id)
+        const channel_name = message.channel.name
         const user = member.user
         const warnsCount = user_cache
         const guild = message.guild
@@ -96,10 +97,10 @@ async function check_whitelist_and_owner(message) {
         const hasWhitelistedRole = memberRoles.some(role => whitelist_data.includes(role.id));
 
         if (hasWhitelistedRole) {
-
+            console.log('Значення true')
             return true
         } else {
-
+            console.log('Значення false')
             return false
         }
 

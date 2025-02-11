@@ -40,7 +40,7 @@
     "no_link_title": "❌Посилання заблоковано",
     "no_links_description": "На даній гільдії заборонено використовувати запрошувальні посилання",
     "guild_logs_member_banned": "Користувач заблокований",
-    "guild_logs_member_banned_description": "Користувач спробував зайти на сервер - та був заблокований.",
+    "guild_logs_member_banned_description": "Користувач мав 3 попередження - та був заблокований.",
     "guild_logs_field_user": "Користувач:",
     "guild_logs_field_channel": "Канал",
     "reason_three_warnings": "3/3 попередження",

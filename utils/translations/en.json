@@ -40,7 +40,7 @@
     "no_link_title": "❌Link Blocked",
     "no_links_description": "Invite links are prohibited on this guild",
     "guild_logs_member_banned": "User Banned",
-    "guild_logs_member_banned_description": "A user attempted to join the server but was banned.",
+    "guild_logs_member_banned_description": "A user has 3 warnings - and was banned.",
     "guild_logs_field_user": "User:",
     "guild_logs_field_channel": "Channel",
     "reason_three_warnings": "3/3 warnings",

@@ -5,6 +5,7 @@ require('dotenv').config()
 const SUPPORT_SERVER_ID = process.env.SUPPORT_SERVER_ID
 const MOD_ROLE_ID = process.env.MOD_ROLE_ID
 const DEV_ROLE_ID = process.env.DEV_ROLE_ID
+const { delete_cache } = require('../../utils/userWarningsCaching')
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('warn')
@@ -63,8 +64,8 @@ module.exports = {
           })
   
           await targetWarns.save();
-  
-  
+          const user_id = target
+          delete_cache(user_id)
           await interaction.reply(`Попередження видано успішно! Загальна кількість попереджень: ${targetWarns.warns}`);
         }catch(error) {
           console.log(error)
