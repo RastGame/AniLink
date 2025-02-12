@@ -7,14 +7,18 @@ const { banLogs, linkLogs } = require('./devLogs')
 const { sendBanMessage } = require('../utils/sendDmMessages')
 async function ban_member(message, user_cache) {
     try{
+        const channel_name = message.channel.name
         const member = message.guild.members.cache.get(message.author.id)
         const channel_name = message.channel.name
         const user = member.user
         const warnsCount = user_cache
         const guild = message.guild
         const user_id = user.id
+
         await sendBanMessage(user, guild)
+
         await member.ban()
+        
         await guild_ban_log(message, user_id, channel_name)
         await banLogs(message, user, guild, warnsCount)
         

@@ -24,7 +24,6 @@ const { getTranslation } = require('../utils/helper')
     async function guild_ban_log(message, user_id, channel_name) {
         guildData = await Guild.findOne({ _id: message.guild.id})
         guild_logchannel = guildData.logchannel
-        console.log(guild_logchannel)
         if(guild_logchannel) {
         const webhook = new WebhookClient({ url: guild_logchannel})
         const log_embed = new EmbedBuilder()

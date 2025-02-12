@@ -1,8 +1,8 @@
 const { Events, MessageFlags, EmbedBuilder, Embed, ButtonBuilder, ButtonStyle, ActionRowBuilder, PermissionOverwriteManager, PermissionOverwrites, PermissionFlagsBits, ModalBuilder, TextInputBuilder, TextInputStyle, flatten, Collection} = require('discord.js');
 require('dotenv').config();
-const { interactionLogs } = require('../utils/devLogs')
 const { send_webhook } = require('../utils/sendBugReport');
-
+const { colors } = require('../utils/helper');
+const { settingsHandler } = require('../utils/settingsHandler');
 module.exports = {
 	name: Events.InteractionCreate,
 	async execute(interaction) {
@@ -15,7 +15,7 @@ module.exports = {
 				console.log(error)
 			}
 		}	
-		
+		const { emoji_pack } = await settingsHandler(interaction)
 		if(interaction.isModalSubmit()) {
 			try{
 				if(interaction.customId === 'bug_report') {
@@ -30,6 +30,7 @@ module.exports = {
 		}
 		if (interaction.isChatInputCommand()) {	
 			if (!interaction.inGuild() || !interaction.isCommand()) return;
+
 			const command = interaction.client.commands.get(interaction.commandName);
 			if (!command) {
 				console.error(`No command matching ${interaction.commandName} was found.`);
