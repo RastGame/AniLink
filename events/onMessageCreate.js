@@ -80,7 +80,7 @@ module.exports = {
                 const user_cache = await warning_cache_check(message)
                 console.log(`Отриманий кеш юзера ${message.author.id}: `+ user_cache)
                 if(user_cache) {
-                    if(user_cache >= 3 && is_blocking_enabled===true) {
+                    if(user_cache >= 3 && is_blocking_enabled===true && isRole===false) {
 
                         const botMember = message.guild.members.cache.get(message.client.user.id)
                         const canBan = await canBotBanMember(botMember, member) 

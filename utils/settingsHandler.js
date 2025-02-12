@@ -24,6 +24,7 @@ async function get_emojis_for_message(support_server) {
             settings_emoji: await support_server.emojis.cache.get('1266082934872604745'),
             logs_channel_emoji: await support_server.emojis.cache.get('1266073334030926008'),
             whitelist_emoji: await support_server.emojis.cache.get('1266073332152008704'),
+            error_emoji: await support_server.emojis.cache.get('1338880092633567303')
         }
         return emoji_pack
     }catch(error) {
@@ -78,7 +79,6 @@ async function settingsHandler(interaction) {
     }
 
     const emoji_pack = await get_emojis_for_message(support_server);
-    console.log(emoji_pack)
     let userblocking;
     if(guildData.blocking_enabled === true){
         userblocking = await getTranslation(interaction.guild.id, "settings_enabled");
@@ -112,6 +112,7 @@ async function get_emojis_for_message(support_server) {
             settings_emoji: await support_server.emojis.cache.get('1266082934872604745'),
             logs_channel_emoji: await support_server.emojis.cache.get('1266073334030926008'),
             whitelist_emoji: await support_server.emojis.cache.get('1266073332152008704'),
+            error_emoji: await support_server.emojis.cache.get('1338880092633567303')
         };
     } catch (error) {
         console.log('Не вдалось отримати емодзі get_emoji_for_message: ' + error);

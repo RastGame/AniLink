@@ -1,4 +1,4 @@
-const { Events, MessageFlags, EmbedBuilder, Embed, ButtonBuilder, ButtonStyle, ActionRowBuilder, PermissionOverwriteManager, PermissionOverwrites, PermissionFlagsBits, ModalBuilder, TextInputBuilder, TextInputStyle, flatten } = require('discord.js');
+const { Events, MessageFlags, EmbedBuilder, Embed, ButtonBuilder, ButtonStyle, ActionRowBuilder, PermissionOverwriteManager, PermissionOverwrites, PermissionFlagsBits, ModalBuilder, TextInputBuilder, TextInputStyle, flatten, Collection} = require('discord.js');
 require('dotenv').config();
 const { send_webhook } = require('../utils/sendBugReport');
 const { colors } = require('../utils/helper');
@@ -20,7 +20,8 @@ module.exports = {
 			try{
 				if(interaction.customId === 'bug_report') {
 					const bug_text = await interaction.fields.getTextInputValue('bug_input')
-					await send_webhook(interaction, bug_text)
+					const reproduce_text = await interaction.fields.getTextInputValue('bug_how_to_reproduce')
+					await send_webhook(interaction, bug_text, reproduce_text)
 				}
 			}catch(error) {
 				console.log(error)
@@ -36,9 +37,46 @@ module.exports = {
 				return;
 			}
 			
-			try {
+			if (!interaction.client.cooldowns) {
+				interaction.client.cooldowns = new Collection();
+			}
+			const cooldowns = interaction.client.cooldowns;
 
+			
+			if (!command) {
+				console.error(`No command matching ${interaction.commandName} was found.`);
+				return;
+			}
+			
+
+			if (!cooldowns.has(command.name)) {
+				cooldowns.set(command.name, new Collection());
+			}
+			
+			const now = Date.now();
+			const timestamps = cooldowns.get(command.name);
+			const defaultCooldownDuration = 3;
+			const cooldownAmount = (command.cooldown ?? defaultCooldownDuration) * 1000;
+
+			if (timestamps.has(interaction.user.id)) {
+				const expirationTime = timestamps.get(interaction.user.id) + cooldownAmount;
+				if (now < expirationTime) {
+					const timeLeft = (expirationTime - now) / 1000;
+					await interaction.reply({ 
+						content: `Зачекайте ${timeLeft.toFixed(1)} секунд перед повторним використанням цієї команди.`,
+						ephemeral: true
+					});
+					return;
+				}
+			}
+			
+
+			timestamps.set(interaction.user.id, now);
+			setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
+
+			try {
 				await command.execute(interaction);
+
 	
 			} catch (error) {
 				console.error(error);
