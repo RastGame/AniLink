@@ -39,18 +39,18 @@ setInterval(() => {
     let now = Date.now();
     for (let [user_id, cacheEntry] of UserWarnsCache) {
         if ((now - cacheEntry.timestamp) >= CACHE_TTL) {
-            delete_cache(user_Id)
+            delete_cache(user_id)
             console.log(`Кеш видалено для користувача ${user_id}`);
         }
     }
 }, CACHE_TTL);
 
-function delete_cache(user_Id) {
+function delete_cache(user_id) {
     try{
-        console.log('Айдішник: '+ user_Id)
-        let cacheEntry = UserWarnsCache.get(user_Id);
+        console.log('Айдішник: '+ user_id)
+        let cacheEntry = UserWarnsCache.get(user_id);
         if (cacheEntry && (Date.now() - cacheEntry.timestamp) < CACHE_TTL) {
-            UserWarnsCache.delete(user_Id);
+            UserWarnsCache.delete(user_id);
             console.log("Кеш видалено!")
         }
 

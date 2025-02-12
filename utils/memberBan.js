@@ -9,7 +9,6 @@ async function ban_member(message, user_cache) {
     try{
         const channel_name = message.channel.name
         const member = message.guild.members.cache.get(message.author.id)
-        const channel_name = message.channel.name
         const user = member.user
         const warnsCount = user_cache
         const guild = message.guild
